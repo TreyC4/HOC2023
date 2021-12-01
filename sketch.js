@@ -1,8 +1,8 @@
 let trimpods = [], time = 0;
 
 const population = 1000;
-const Totaltime = 10;
-const fps = 60;
+const Totaltime = 5;
+const fps = 120;
 const kill = true;
 
 function setup() {
@@ -11,7 +11,7 @@ function setup() {
 }
  
 function draw() {
-  background(255);
+  background(0);
   trimpods.forEach(trimp => {
     trimp.show();
     trimp.act();
@@ -34,4 +34,5 @@ function draw() {
   }
 }
 
-const survive = (trimp) => trimp.pos.x > width - (width / 10) && trimp.pos.x < width + (width / 10);
+//const survive = (trimp) => trimp.pos.x > width - (width / 10) && trimp.pos.x < width + (width / 10);
+const survive = trimp => abs(trimp.pos.x - mouseX) + abs(trimp.pos.y - mouseY) < (width + height) / 40;
