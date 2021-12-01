@@ -3,9 +3,14 @@ class Trimp {
     constructor(obj) {
       const keys = Object.keys(obj);
       this.color = keys.includes('color') ? obj.color : [random(0, 255), random(0, 255), random(0, 255)];
+      const x = floor(random(0, width+1)), y = floor(random(0, height+1));
       this.pos = {
-        x: floor(random(0, width+1)),
-        y: floor(random(0, height+1))
+        x: x,
+        y: y
+      };
+      this.begin = {
+        x: x,
+        y: y
       };
       if (keys.includes('max_conn')) {
         this.genome = Trimp.genRandGenome(floor(random(0, obj.max_conn + 1)));
@@ -71,15 +76,18 @@ class Trimp {
     
     replicate() {
       const hex = ['a', 'b', 'c', 'd', 'e', 'f'];
+      let chance = false;
       const genome = this.genome.split('').map(gen => {
-        const result = random() < 0.002 && gen !== 'h' && gen !== 'i' && gen !== 'g' ? (isNaN(gen) ? String.fromCharCode(gen.charCodeAt(0)) + round(random) : (parseInt(gen) + floor(round(-1, 2))).toString()) : gen;
+        const test = random() < 0.002 && gen !== 'h' && gen !== 'i' && gen !== 'g';
+        if (test)chance = true;
+        const result = test ? (isNaN(gen) ? String.fromCharCode(gen.charCodeAt(0)) + round(random) : (parseInt(gen) + floor(round(-1, 2))).toString()) : gen;
         if (parseInt(result) > 9)return '9';
         if (parseInt(result) < 0)return '0';
         if (!hex.includes(result) && gen != result)return hex[floor(random(0, hex.length))];
         return result;
       }).join('');
       const trimp = new Trimp({
-        color: this.color
+        color: chance ? [random(0, 255), random(0, 255), random(0, 255)] : this.color
       })
       trimp.setGen(genome, 0.1);
       return trimp;
