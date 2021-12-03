@@ -2,10 +2,16 @@ class Trimp {
   
     constructor(obj) {
       const keys = Object.keys(obj);
+      this.cheese = 0;
       this.color = keys.includes('color') ? obj.color : [random(0, 255), random(0, 255), random(0, 255)];
+      const x = floor(random(0, width+1)), y = floor(random(0, height+1));
       this.pos = {
-        x: floor(random(0, width+1)),
-        y: floor(random(0, height+1))
+        x: obj.x || x,
+        y: obj.y || y
+      };
+      this.begin = {
+        x: obj.x || x,
+        y: obj.y || y
       };
       if (keys.includes('max_conn')) {
         this.genome = Trimp.genRandGenome(floor(random(0, obj.max_conn + 1)));
@@ -22,8 +28,14 @@ class Trimp {
     
     act() {
       const popDensity = this.popDensity(); 
-      //const output = this.brain.ffor([this.pos.x / width, this.pos.y / height, random(), popDensity.length / trimpods.length, (height - this.pos.y) / height, (width - this.pos.x) / width, parseInt(this.closestTrimp().color.reduce((p, c) => "" + p + c)), parseInt(this.color.reduce((p, c) => "" + p + c)) / 255255255]);
-      const output = this.brain.ffor([this.pos.x / width, this.pos.y / height, random(), popDensity.length / trimpods.length, (height - this.pos.y) / height, (width - this.pos.x) / width, mouseX / width, mouseY / height]);
+      let cheese = this.closestCheese();
+      const distance = Math.sqrt(Math.pow(this.pos.x - cheese.pos.x, 2) + Math.pow(this.pos.y - cheese.pos.y, 2));
+      if (distance < 195) {
+        cheeses.splice(cheeses.indexOf(cheese), 1);
+        this.cheese++;
+        cheese = this.closestCheese();
+      }
+      const output = this.brain.ffor([this.pos.x / width, this.pos.y / height, random(), popDensity.length / 8, (height - this.pos.y) / height, (width - this.pos.x) / width, cheese.pos.x, cheese.pos.y]);
       if (!output[6]) {
         if (output[4])output[floor(random(0, 4))] = 1;
         if (output[0] && this.pos.x !== width && trimpods.filter(trimp => trimp.pos.x == this.pos.x+1 && trimp.pos.y == this.pos.y).length == 0)this.pos.x++;
@@ -37,8 +49,8 @@ class Trimp {
     
     
     
-    closestTrimp() {
-      return trimpods.reduce((p, c) => abs(p.pos.x - this.pos.x) + abs(p.pos.y - this.pos.y) > abs(c.pos.x - this.pos.x) + abs(c.pos.y - this.pos.y) ? p : c);
+    closestCheese() {
+      return cheeses.reduce((p, c) => abs(p.pos.x - this.pos.x) + abs(p.pos.y - this.pos.y) > abs(c.pos.x - this.pos.x) + abs(c.pos.y - this.pos.y) ? p : c);
     }
     
     popDensity() {
@@ -52,13 +64,13 @@ class Trimp {
     
     static genRandGenome(amount) {
       let res = [];
-        for (let i = 0; i < amount; i++)res.push("" + round(random()) + round(random()) + round(random()) + round(random()) + round(random()) + round(random()) + round(random()));
+      for (let i = 0; i < amount; i++)res.push(this.randBin(7, 127));
       res = Trimp.unArr(res);
       let biases = [], bAmount = floor(random(0, 17));
-      for (let i = 0; i < bAmount; i++)biases.push("" + round(random()) + round(random()) + round(random()) + round(random()));
+      for (let i = 0; i < bAmount; i++)biases.push(this.randBin(4, 15))
       biases = Trimp.unArr(biases);
-      biases = biases.map(bias => parseInt(bias + round(random()) + round(random()) + round(random()) + round(random()) + round(random()) + round(random()) + round(random()) + round(random()), 2).toString(16)).join('i');
-      return [res.map(gen => parseInt(gen + round(random()) + round(random()) + round(random()) + round(random()) + round(random()) + round(random()) + round(random()) + round(random()) + round(random()), 2).toString(16)).join('g')].concat(biases).join('h');
+      biases = biases.map(bias => parseInt(bias + this.randBin(8, 255), 2).toString(16)).join('i');
+      return [res.map(gen => parseInt(gen + this.randBin(9, 511), 2).toString(16)).join('g')].concat(biases).join('h');
     }
     
     static unArr(arr)  {
@@ -72,7 +84,7 @@ class Trimp {
     replicate() {
       const hex = ['a', 'b', 'c', 'd', 'e', 'f'];
       const genome = this.genome.split('').map(gen => {
-        const result = random() < 0.002 && gen !== 'h' && gen !== 'i' && gen !== 'g' ? (isNaN(gen) ? String.fromCharCode(gen.charCodeAt(0)) + round(random) : (parseInt(gen) + floor(round(-1, 2))).toString()) : gen;
+        const result = random() < 0.02 && gen !== 'h' && gen !== 'i' && gen !== 'g' ? (isNaN(gen) ? String.fromCharCode(gen.charCodeAt(0)) + round(random) : (parseInt(gen) + floor(round(-1, 2))).toString()) : gen;
         if (parseInt(result) > 9)return '9';
         if (parseInt(result) < 0)return '0';
         if (!hex.includes(result) && gen != result)return hex[floor(random(0, hex.length))];
@@ -85,4 +97,7 @@ class Trimp {
       return trimp;
     }
   
+    static randBin(length, bin) {
+      return ("00000000000000000000000000000000" + floor(random(0, bin + 1)).toString(2)).substr(-length);
+    } 
   }
