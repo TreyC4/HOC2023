@@ -41,6 +41,18 @@ class Matrix {
       return arr;
     }
   
+    mutate() {
+      let chance = false;
+      this.data = this.data.map(row => row.map(el => {
+        if (random(0, 100) <= mutationChance) {
+          el += random(-0.1, 0.1);
+          chance = true;
+        }
+        return el; 
+      }));
+      return chance;
+    }
+
     randomize() {
       for (let i = 0; i < this.rows; i++) {
         for (let j = 0; j < this.cols; j++) {
