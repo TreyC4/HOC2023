@@ -20,15 +20,15 @@ class Trimp {
     }
     
     act() {
-      const popDensity = this.popDensity(); 
-      const output = this.brain.ffor([this.pos.x / width, this.pos.y / height, random(), popDensity.length / 8, (height - this.pos.y) / height, (width - this.pos.x) / width, parseInt(this.color.reduce((p, c) => p + c + "")) / 255255255, parseInt(this.closestTrimp().color.reduce((p, c) => p + c + "")) / 255255255]);
+      const popDensity = this.popDensity();
+      const output = this.brain.ffor([this.pos.x / width, this.pos.y / height, random(), popDensity.length / 8, (height - this.pos.y) / height, (width - this.pos.x) / width, parseInt(this.color.reduce((p, c) => p + c + "")) / 255255255, parseInt(this.closestTrimp().color.reduce((p, c) => p + c + "")) / 255255255]); 
       if (!output[6]) {
         if (output[4])output[floor(random(0, 4))] = 1;
         if (output[0] && this.pos.x !== width && trimpods.filter(trimp => trimp.pos.x == this.pos.x+1 && trimp.pos.y == this.pos.y).length == 0)this.pos.x++;
         if (output[1] && this.pos.x !== 0 && trimpods.filter(trimp => trimp.pos.x == this.pos.x-1 && trimp.pos.y == this.pos.y).length == 0)this.pos.x--;
         if (output[2] && this.pos.y !== height && trimpods.filter(trimp => trimp.pos.y == this.pos.y+1 && trimp.pos.x == this.pos.x).length == 0)this.pos.y++;
         if (output[3] && this.pos.y !== 0 && trimpods.filter(trimp => trimp.pos.y == this.pos.y-1 && trimp.pos.x == this.pos.x).length == 0)this.pos.y--;
-        if (output[5] && kill && popDensity.length == 1)trimpods.splice(trimpods.indexOf(popDensity[0]), 1);
+        if (output[5] && kill && popDensity.length == 1 && !(popDensity[0].color[0] == this.color[0] && popDensity[0].color[1] == this.color[1] && popDensity[0].color[2] == this.color[2]) && !survive(popDensity[0]))trimpods.splice(trimpods.indexOf(popDensity[0]), 1);
         if (output[7])trimpods.splice(trimpods.indexOf(this), 1);
       }
       if (this.pos.x < 0)this.pos.x = 0;
