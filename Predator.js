@@ -7,16 +7,26 @@ class Predator {
         };
         this.color = [10, 10, 10]; 
         this.range = 4;
-        this.speed = 2;       
+        this.speed = 2; 
+        this.lazy = 0;
+        this.state = 0;      
     }
 
     act() {
-        let target = this.closestTrimp();
-        if (this.inRange(target)) {
-            this.kill(target);
-            let target = this.closestTrimp();
+        if (this.state !== this.lazy) {
+            this.state++
+        } else {
+            const target = this.closestTrimp();
+            if (this.inRange(target)) {
+                this.kill(target);
+                this.state = 0;
+            } else {
+                this.moveTowards(target);
+            }
+            stroke(255, 255, 255);
+            circle(target.pos.x, target.pos.y, 5);
+            target.show();
         }
-        this.moveTowards(target);
         this.show();
     }
 
@@ -28,7 +38,7 @@ class Predator {
     }
 
     closestTrimp() {
-        return trimpods.reduce((p, c) => abs(p.pos.x - this.pos.x) + abs(p.pos.y - this.pos.y) > abs(c.pos.x - this.pos.x) + abs(c.pos.y - this.pos.y) ? p : c);
+        return trimpods.reduce((p, c) => abs(p.pos.x - this.pos.x) + abs(p.pos.y - this.pos.y) < abs(c.pos.x - this.pos.x) + abs(c.pos.y - this.pos.y) ? p : c);
     }
 
     show() {
@@ -38,6 +48,11 @@ class Predator {
     }
 
     inRange(target) {
-        return abs(target.pos.x - this.pos.x) + abs(target.pos.y - this.pos.y) <= this.range
+        const range = Math.sqrt(Math.pow(abs(target.pos.y - this.pos.y), 2) + Math.pow(abs(target.pos.x - this.pos.x), 2));
+        return range <= this.range;
+    }
+
+    kill(target) {
+        trimpods.splice(trimpods.indexOf(target), 1);
     }
 }

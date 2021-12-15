@@ -15,13 +15,14 @@ class Trimp {
       if (obj && keys.includes('brain'))this.brain = obj.brain;
       else {
         this.brain = new Network(0);
-        this.brain.fromLayers(8, 8, 8);
+        this.brain.fromLayers(10, 9, 8);
       }
     }
     
     act() {
       const popDensity = this.popDensity();
-      const output = this.brain.ffor([this.pos.x / width, this.pos.y / height, random(), popDensity.length / 8, (height - this.pos.y) / height, (width - this.pos.x) / width, parseInt(this.color.reduce((p, c) => p + c + "")) / 255255255, parseInt(this.closestTrimp().color.reduce((p, c) => p + c + "")) / 255255255]); 
+      const predator = this.closestPredator();
+      const output = this.brain.ffor([this.pos.x / width, this.pos.y / height, random(), popDensity.length / 8, (height - this.pos.y) / height, (width - this.pos.x) / width, parseInt(this.color.reduce((p, c) => p + c + "")) / 255255255, parseInt(this.closestTrimp().color.reduce((p, c) => p + c + "")) / 255255255, predator.pos.x / width, predator.pos.y / height]); 
       if (!output[6]) {
         if (output[4])output[floor(random(0, 4))] = 1;
         if (output[0] && this.pos.x !== width && trimpods.filter(trimp => trimp.pos.x == this.pos.x+1 && trimp.pos.y == this.pos.y).length == 0)this.pos.x++;
@@ -37,8 +38,12 @@ class Trimp {
       if (this.pos.y > height)this.pos.y = height;
     }
     
+    closestPredator() {
+      return predatods.reduce((p, c) => abs(p.pos.x - this.pos.x) + abs(p.pos.y - this.pos.y) < abs(c.pos.x - this.pos.x) + abs(c.pos.y - this.pos.y) ? p : c);
+    }
+
     closestTrimp() {
-      return trimpods.reduce((p, c) => abs(p.pos.x - this.pos.x) + abs(p.pos.y - this.pos.y) > abs(c.pos.x - this.pos.x) + abs(c.pos.y - this.pos.y) ? p : c);
+      return trimpods.reduce((p, c) => abs(p.pos.x - this.pos.x) + abs(p.pos.y - this.pos.y) < abs(c.pos.x - this.pos.x) + abs(c.pos.y - this.pos.y) ? p : c);
     }
 
     popDensity() {
