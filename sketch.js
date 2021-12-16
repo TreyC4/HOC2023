@@ -5,7 +5,7 @@ const predators = 1;
 const fps = 1000000;
 let frames = 0;
 const kill = false;
-const mutationChance = 0.001;
+const mutationChance = 0.01;
 
 function setup() {
   createCanvas(292, 178);
