@@ -3,6 +3,7 @@ let trimpods = [], predatods = [];
 const population = 500;
 const predators = 1;
 const fps = 1000000;
+let frames = 0;
 const kill = false;
 const mutationChance = 0.001;
 
@@ -21,4 +22,6 @@ function setup() {
     trimp.act();
   });
   predatods.forEach(predator => predator.act());
+  if (frames % 1000 == 0)console.log("Frame " + frames);
+  frames++;
 }

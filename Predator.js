@@ -5,10 +5,10 @@ class Predator {
             x: floor(random(0, width+1)),
             y: floor(random(0, height+1))
         };
-        this.color = [10, 10, 10]; 
+        this.color = [255, 0, 0]; 
         this.range = 4;
-        this.speed = 2; 
-        this.lazy = 0;
+        this.speed = 1; 
+        this.lazy = 5;
         this.state = 0;      
     }
 
@@ -43,8 +43,27 @@ class Predator {
 
     show() {
         stroke(255, 0, 0);
-        fill(this.color);
-        rect(this.pos.x, this.pos.y, 2, 2);
+        //fill(this.color);
+        //rect(this.pos.x, this.pos.y, 2, 2);
+        [
+            [this.pos.x, this.pos.y-2], 
+            [this.pos.x, this.pos.y], 
+            [this.pos.x-1, this.pos.y-1],
+            [this.pos.x-1, this.pos.y],
+            [this.pos.x+1, this.pos.y],
+            [this.pos.x-1, this.pos.y+1],
+            [this.pos.x+1, this.pos.y+1],
+            [this.pos.x-2, this.pos.y],
+            [this.pos.x-2, this.pos.y-1],
+            [this.pos.x-1, this.pos.y-2],
+            [this.pos.x+1, this.pos.y-2]
+        ].forEach(coords => point(...coords));
+        stroke(0, 255, 255);
+        point(this.pos.x, this.pos.y-1);
+        [
+            [this.pos.x, this.pos.y-1],
+            [this.pos.x+1, this.pos.y-1],
+        ].forEach(coords => point(...coords));
     }
 
     inRange(target) {
