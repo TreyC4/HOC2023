@@ -8,13 +8,13 @@ const kill = false;
 const mutationChance = 0.01;
 
 function setup() {
-  createCanvas(292, 178);
+  createCanvas(200, 200);
   frameRate(fps);
   for (let i = 0; i < population; i++)trimpods.push(new Trimp({}));
   for (let i = 0; i < predators; i++)predatods.push(new Predator());
 }
  
- function draw() {
+function draw() {
   background(0);
   if (trimpods.length < population)trimpods.push(trimpods[floor(random(0, trimpods.length))].replicate())
   trimpods.forEach(trimp => {
