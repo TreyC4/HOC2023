@@ -10,17 +10,34 @@ class Trimp {
       };
       this.begin = this.pos;
       this.state = 0;
+      this.hunger = 500;
       if (obj && keys.includes('brain'))this.brain = obj.brain;
       else {
         this.brain = new Network(0);
-        this.brain.fromLayers(10, 9, 8);
+        this.brain.fromLayers(11, 9, 8);
       }
     }
     
     act() {
       const popDensity = this.popDensity();
-      const predator = this.closestPredator();
-      const output = this.brain.ffor([this.pos.x / width, this.pos.y / height, random(), popDensity.length / 8, (height - this.pos.y) / height, (width - this.pos.x) / width, parseInt(this.p_color.reduce((p, c) => p + c + "")) / 255255255, parseInt(this.closestTrimp().p_color.reduce((p, c) => p + c + "")) / 255255255, predator.pos.x / width, predator.pos.y / height]); 
+      const cheese = this.closestCheese();
+      if (Math.sqrt(Math.pow(cheese.pos.x - this.pos.x, 2) + Math.pow(cheese.pos.y - this.pos.y, 2)) < 3) {
+        this.hunger += 200;
+        cheezits[cheezits.indexOf(cheese)] = new Cheese({});
+      }
+      const output = this.brain.ffor([
+        this.pos.x / width, 
+        this.pos.y / height, 
+        random(), 
+        popDensity.length / 8, 
+        (height - this.pos.y) / height, 
+        (width - this.pos.x) / width, 
+        parseInt(this.p_color.reduce((p, c) => p + c + "")) / 255255255, 
+        parseInt(this.closestTrimp().p_color.reduce((p, c) => p + c + "")) / 255255255, 
+        cheese.pos.x / width,
+        cheese.pos.y / height,
+        this.hunger
+      ]); 
       if (!output[6]) {
         if (output[4])output[floor(random(0, 4))] = 1;
         this.state = 0;
@@ -38,16 +55,18 @@ class Trimp {
           this.pos.y--;
         }
         if (output[5] && kill && popDensity.length == 1 && !(popDensity[0].p_color[0] == this.p_color[0] && popDensity[0].p_color[1] == this.p_color[1] && popDensity[0].p_color[2] == this.p_color[2]) && !survive(popDensity[0]))trimpods.splice(trimpods.indexOf(popDensity[0]), 1);
-        if (output[7])trimpods.splice(trimpods.indexOf(this), 1);
+        if (output[7]) this.die();
       }
+      if (this.hunger <= 0) this.die();
       if (this.pos.x < 0)this.pos.x = 0;
       if (this.pos.x > width)this.pos.x = width;
       if (this.pos.y < 0)this.pos.y = 0;
       if (this.pos.y > height)this.pos.y = height;
+      this.hunger-=2;
     }
     
-    closestPredator() {
-      return predatods.reduce((p, c) => abs(p.pos.x - this.pos.x) + abs(p.pos.y - this.pos.y) < abs(c.pos.x - this.pos.x) + abs(c.pos.y - this.pos.y) ? p : c);
+    closestCheese() {
+      return cheezits.reduce((p, c) => abs(p.pos.x - this.pos.x) + abs(p.pos.y - this.pos.y) < abs(c.pos.x - this.pos.x) + abs(c.pos.y - this.pos.y) ? p : c);
     }
 
     closestTrimp() {
@@ -56,6 +75,24 @@ class Trimp {
 
     popDensity() {
       return trimpods.filter(trimp => abs(this.pos.x - trimp.pos.x) + abs(this.pos.y - trimp.pos.y) == 2 );
+    }
+
+    die() {
+      [
+        {
+          color: [255, 0, 0],
+          pixels: [
+            [this.pos.x, this.pos.y+1],
+            [this.pos.x+1, this.pos.y+1],
+            [this.pos.x, this.pos.y],
+            [this.pos.x+1, this.pos.y]
+          ]
+        }
+      ].forEach(pixels => {
+        stroke(pixels.color);
+        pixels.pixels.forEach(pixel => point(...pixel));
+      });
+      trimpods.splice(trimpods.indexOf(this), 1);
     }
     
     show() {
@@ -104,6 +141,8 @@ class Trimp {
         {
           color: this.s_color,
           pixels: [
+            [this.pos.x-1, this.pos.y-1],
+            [this.pos.x+1, this.pos.y-1],
             [this.pos.x-1, this.pos.y+1],
             [this.pos.x+1, this.pos.y+1]
           ]
